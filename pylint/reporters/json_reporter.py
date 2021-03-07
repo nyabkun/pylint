@@ -6,10 +6,13 @@
 
 from __future__ import annotations
 
+"""JSON reporter."""
+import io
 import json
 from typing import TYPE_CHECKING
 
 from pylint.reporters.base_reporter import BaseReporter
+from pylint.reporters.ureports.text_writer import TextWriter
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -44,6 +47,11 @@ class JSONReporter(BaseReporter):
 
     def display_reports(self, layout: Section) -> None:
         """Don't do anything in this reporter."""
+        output = io.StringIO()
+        TextWriter().format(layout, output)
+        score = output.getvalue().split("Your")[1]
+        score = score.split(r"/10")[0]
+        self.messages.append({"score": f"Your{score}/10"})
 
     def _display(self, layout: Section) -> None:
         """Do nothing."""
